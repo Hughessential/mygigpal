@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MyGigPal">
+<meta name="description" content="Scan your gigs from the planner and send them straight to your calendar — shop call times included.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<title>MyGigPal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+
+<!-- MyGigPal intro gate — runs pre-paint so there's no flash on first load. -->
+<script>window.MGP_DEMO = false;</script>
+<script>
+  /* Full intro on first visit / first launch after a version bump; quick fade otherwise.
+     Bump MGP_VERSION in lockstep with the sw.js cache to replay the full intro for everyone. */
+  (function () {
+    var h = document.documentElement, V = "v5";
+    window.MGP_VERSION = V;
+    if (window.MGP_DEMO) { h.classList.add("mgp-intro-pending"); return; }
+    try {
+      if (localStorage.getItem("mygigpal_intro_seen_v1") === V) h.classList.add("mgp-intro-pending", "mgp-intro-quick");
+      else h.classList.add("mgp-intro-pending");
+    } catch (e) { h.classList.add("mgp-intro-pending"); }
+  })();
+</script>
+</head>
+<body>
+
+<!-- Intro / preload overlay -->
+<div class="mgp-intro" id="mgpIntro" role="status" aria-live="polite" aria-label="MyGigPal loading">
+  <div class="mgp-intro__eyebrow">
+    <span>MyGigPal / Boot</span>
+    <span class="mgp-intro__status" aria-hidden="true">
+      <span class="mgp-intro__s-boot"><i class="mgp-intro__dot"></i>Booting</span>
+      <span class="mgp-intro__s-ready"><i class="mgp-intro__dot"></i>Ready</span>
+    </span>
+  </div>
+  <div class="mgp-intro__brand">
+    <img class="mgp-intro__logo" src="./icon-512.png" alt="MyGigPal">
+    <div class="mgp-intro__word">My<b>Gig</b>Pal</div>
+  </div>
+  <div class="mgp-intro__track"><div class="mgp-intro__fill"></div></div>
+</div>
+
+<!-- Status readout — persistent, always present, never moves -->
+<header class="readout" id="readout">
+  <span class="readout-brand">MYGIGPAL</span>
+  <span class="readout-sep">/</span>
+  <span class="readout-section" id="readout-section">GIG LOGISTICS, AUTOMATED</span>
+  <span class="readout-state" id="readout-state">IDLE</span>
+</header>
+
+<!-- View: Onboarding (first-run tutorial) -->
+<section class="view" id="view-onboard" data-active>
+  <div class="onboard">
+    <div class="onboard-stage" id="onboard-stage" data-step="0">
+
+      <!-- Step 0: Welcome -->
+      <div class="onboard-step" data-step="0">
+        <div class="onboard-eyebrow reveal" data-reveal="0">001 — WELCOME</div>
+        <h1 class="onboard-title reveal" data-reveal="1">Your gigs.<br>On your calendar.<br>In <em>seconds.</em></h1>
+        <p class="onboard-body reveal" data-reveal="2">
+          MyGigPal pulls your upcoming gigs from the planner and sends them straight to your calendar — with shop call times already calculated.
+        </p>
+        <div class="onboard-meta reveal" data-reveal="3">No accounts. No servers. Your data stays on your device.</div>
+        <div class="mgp-install reveal" data-reveal="4">
+          <button class="mgp-install__btn" id="mgpInstallBtn" type="button">Install MyGigPal <span class="mgp-arrow" aria-hidden="true">↓</span></button>
+          <p class="mgp-install__sub" id="mgpInstallSub">Optional, but recommended for quick access.</p>
+          <p class="mgp-install__status" id="mgpInstalledState" hidden>MyGigPal installed</p>
+        </div>
+      </div>
+
+      <!-- Step 1: The bookmarklet bridge -->
+      <div class="onboard-step" data-step="1">
+        <div class="onboard-eyebrow reveal" data-reveal="0">002 — ONE-TIME SETUP</div>
+        <h1 class="onboard-title reveal" data-reveal="1">Install the<br><span class="accent">Scan Bridge.</span></h1>
+        <p class="onboard-body reveal" data-reveal="2">
+          Drag <strong>Scan Gigs</strong> to your bookmarks bar (desktop) or save it as a bookmark (mobile). It's the secure bridge that lets MyGigPal read the planner without ever seeing your password.
+        </p>
+        <div class="bookmarklet-wrap reveal" data-reveal="3">
+          <a class="bookmarklet" id="bookmarklet" href="#">⌥ Scan Gigs</a>
+        </div>
+        <div class="onboard-meta reveal" data-reveal="4">On iOS or Android, long-press the button to copy it, then save it as a bookmark.</div>
+      </div>
+
+      <!-- Step 2: How to use it -->
+      <div class="onboard-step" data-step="2">
+        <div class="onboard-eyebrow reveal" data-reveal="0">003 — HOW IT WORKS</div>
+        <h1 class="onboard-title reveal" data-reveal="1">Three taps.<br>Every time.</h1>
+        <ol class="onboard-list">
+          <li class="reveal" data-reveal="2">
+            <span class="onboard-num">01</span>
+            <div>
+              <strong>Open DJ Event Planner</strong> in your browser and go to <em>Events — Upcoming</em>.
+            </div>
+          </li>
+          <li class="reveal" data-reveal="3">
+            <span class="onboard-num">02</span>
+            <div>
+              <strong>Click Scan Gigs</strong> in your bookmarks. It reads your gigs and sends them to MyGigPal.
+            </div>
+          </li>
+          <li class="reveal" data-reveal="4">
+            <span class="onboard-num">03</span>
+            <div>
+              <strong>Hit Export.</strong> A calendar file downloads. Open it. Done.
+            </div>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Step 3: Shop call rules -->
+      <div class="onboard-step" data-step="3">
+        <div class="onboard-eyebrow reveal" data-reveal="0">004 — SHOP CALL RULES</div>
+        <h1 class="onboard-title reveal" data-reveal="1">Shop call,<br>auto-computed.</h1>
+        <div class="rules">
+          <div class="rule reveal" data-reveal="2">
+            <div class="rule-key">LOCAL</div>
+            <div class="rule-val">Setup time<span class="rule-op"> – 2h</span></div>
+          </div>
+          <div class="rule reveal" data-reveal="3">
+            <div class="rule-key">OUT OF STATE</div>
+            <div class="rule-val">05:00<span class="rule-op"> default</span></div>
+          </div>
+          <div class="rule reveal" data-reveal="4">
+            <div class="rule-key">MANUALLY SET</div>
+            <div class="rule-val">Honored as-is</div>
+          </div>
+        </div>
+        <p class="onboard-body reveal" data-reveal="5">
+          Every export creates three calendar entries per gig: the gig itself, the venue setup window, and a separate shop call reminder at the warehouse.
+        </p>
+      </div>
+
+      <!-- Step 4: Ready -->
+      <div class="onboard-step" data-step="4">
+        <div class="onboard-eyebrow reveal" data-reveal="0">005 — READY</div>
+        <h1 class="onboard-title reveal" data-reveal="1">Let's run<br>the board.</h1>
+        <p class="onboard-body reveal" data-reveal="2">
+          Scan as many times a day as you want. The board only flags what's new or changed. Calendar entries update in place — no duplicates, ever.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="onboard-nav">
+      <div class="onboard-dots" id="onboard-dots">
+        <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="onboard-buttons">
+        <button class="anim-btn anim-btn-back is-hidden" id="btn-back">
+          <span class="anim-edge"></span><span class="anim-edge"></span><span class="anim-edge"></span><span class="anim-edge"></span>
+          <span class="anim-label">BACK</span>
+        </button>
+        <button class="anim-btn anim-btn-next" id="btn-next">
+          <span class="anim-edge"></span><span class="anim-edge"></span><span class="anim-edge"></span><span class="anim-edge"></span>
+          <span class="anim-label">NEXT</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- View: Main board (the flight-board interface) -->
+<section class="view" id="view-board">
+  <div class="board">
+
+    <div class="board-head">
+      <div class="board-eyebrow">UPCOMING GIGS</div>
+      <h2 class="board-count" id="board-count">— EVENTS</h2>
+      <div class="board-sub" id="board-sub">Click Scan Gigs from the planner to pull your gigs.</div>
+    </div>
+
+    <div class="board-summary" id="board-summary" hidden>
+      <span class="sum-pill sum-new"><b id="sum-new">0</b> new</span>
+      <span class="sum-pill sum-changed"><b id="sum-changed">0</b> updated</span>
+      <span class="sum-pill sum-done"><b id="sum-done">0</b> exported</span>
+    </div>
+
+    <ol class="rows" id="rows"></ol>
+
+    <div class="board-empty" id="board-empty">
+      <div class="empty-line">— NO DATA —</div>
+      <div class="empty-hint">Open the planner, click Scan Gigs, and your gigs land here.</div>
+    </div>
+
+    <div class="board-actions">
+      <button class="btn-scan" id="btn-scan">
+        <span class="btn-scan-label">SCAN</span>
+        <span class="btn-scan-sub">Paste gigs from the Scan Gigs bridge</span>
+      </button>
+      <button class="btn-export" id="btn-export" disabled>
+        <span>EXPORT <em id="exp-count">0</em> TO CALENDAR</span>
+      </button>
+    </div>
+
+    <div class="board-foot">
+      <button class="btn-link" id="btn-tutorial">↻ Replay tutorial</button>
+      <span class="dot-sep">·</span>
+      <button class="btn-link" id="btn-reset">Reset memory</button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer credit -->
+<footer class="app-footer">
+  <span class="footer-mark">MyGigPal</span>
+  <span class="footer-by">A product of Hughessential&trade; Digital Studio</span>
+  <span class="footer-copy">&copy; 2026 Hughessential LLC · All rights reserved</span>
+</footer>
+
+<!-- Toast -->
+<div class="toast" id="toast" hidden>
+  <span class="toast-bar"></span>
+  <span class="toast-msg" id="toast-msg"></span>
+</div>
+
+<!-- Install instructions modal (iOS / Android / desktop fallback) -->
+<div class="mgp-modal" id="mgpModal" role="dialog" aria-modal="true" aria-labelledby="mgpModalTitle" hidden>
+  <div class="mgp-modal__card">
+    <p class="mgp-modal__eyebrow">Add to device</p>
+    <h2 class="mgp-modal__title" id="mgpModalTitle">Install MyGigPal</h2>
+    <ol class="mgp-modal__steps" id="mgpModalSteps"></ol>
+    <button class="mgp-modal__close" id="mgpModalClose" type="button">Got it</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
