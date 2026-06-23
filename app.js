@@ -5,7 +5,7 @@
    ────────────────────────────────────────────────────────────────────────── */
 
 const APP_ORIGIN = location.origin;
-const APP_URL = new URL('./index.html', location.href).href;
+const APP_URL = new URL('./', location.href).href.replace(/\/$/, '');
 
 // ── State ────────────────────────────────────────────────────────────────────
 const state = {
@@ -243,11 +243,11 @@ if(opened){setTimeout(()=>overlay.remove(),1500);return;}
 const fits=encoded.length<12000;
 let inner='<div style="max-width:340px;"><div style="font-size:20px;font-weight:900;letter-spacing:0.1em;margin-bottom:14px;color:#00d9ff;">MYGIGPAL &middot; SCAN BRIDGE</div><div style="color:#fff;margin-bottom:16px;">'+list.length+' gigs ready.</div>';
 if(fits){inner+='<a href="'+TARGET+'/?h='+encoded+'" style="display:block;background:#00d9ff;color:#000;text-decoration:none;padding:16px;font:900 14px sans-serif;letter-spacing:0.06em;border-radius:10px;margin-bottom:10px;">OPEN MYGIGPAL &rarr;</a><button id="hg_copy" style="width:100%;background:transparent;color:#00d9ff;border:1px solid #00d9ff;padding:14px;font:700 13px sans-serif;letter-spacing:0.06em;border-radius:10px;cursor:pointer;">OR COPY GIGS</button><div id="hg_hint" style="color:#8d8b84;font-size:12px;margin-top:12px;">Tap OPEN MYGIGPAL &mdash; your gigs load automatically.</div>';}
-else{inner+='<button id="hg_copy" style="width:100%;background:#00d9ff;color:#000;border:0;padding:16px;font:900 14px sans-serif;letter-spacing:0.06em;border-radius:10px;cursor:pointer;margin-bottom:10px;">COPY GIGS</button><a href="'+TARGET+'/?paste=1" style="display:block;background:transparent;color:#00d9ff;text-decoration:none;border:1px solid #00d9ff;padding:14px;font:700 13px sans-serif;letter-spacing:0.06em;border-radius:10px;">OPEN MYGIGPAL &rarr;</a><div id="hg_hint" style="color:#8d8b84;font-size:12px;margin-top:12px;">Tap COPY GIGS, then OPEN MYGIGPAL and tap SCAN to paste.</div>';}
+else{inner+='<button id="hg_copy" style="width:100%;background:#00d9ff;color:#000;border:0;padding:16px;font:900 14px sans-serif;letter-spacing:0.06em;border-radius:10px;cursor:pointer;margin-bottom:10px;">COPY GIGS</button><a href="'+TARGET+'/?paste=1" style="display:block;background:transparent;color:#00d9ff;text-decoration:none;border:1px solid #00d9ff;padding:14px;font:700 13px sans-serif;letter-spacing:0.06em;border-radius:10px;">OPEN MYGIGPAL &rarr;</a><div id="hg_hint" style="color:#8d8b84;font-size:12px;margin-top:12px;">Tap COPY GIGS, then OPEN MYGIGPAL to finish.</div>';}
 inner+='</div>';
 overlay.innerHTML=inner;
 const cp=document.getElementById('hg_copy');
-if(cp){cp.onclick=async()=>{let ok=false;try{await navigator.clipboard.writeText(payload);ok=true;}catch(e){}if(!ok){try{const ta=document.createElement('textarea');ta.value=payload;ta.style.cssText='position:fixed;opacity:0;top:0;left:0;';document.body.appendChild(ta);ta.focus();ta.select();ok=document.execCommand('copy');ta.remove();}catch(e2){}}cp.textContent=ok?'COPIED \u2713':'COPY FAILED';const hint=document.getElementById('hg_hint');if(hint)hint.textContent=ok?'Copied! Now tap OPEN MYGIGPAL, then SCAN to paste.':'Could not copy \u2014 tap and hold to select manually.';};}
+if(cp){cp.onclick=async()=>{let ok=false;try{await navigator.clipboard.writeText(payload);ok=true;}catch(e){}if(!ok){try{const ta=document.createElement('textarea');ta.value=payload;ta.style.cssText='position:fixed;opacity:0;top:0;left:0;';document.body.appendChild(ta);ta.focus();ta.select();ok=document.execCommand('copy');ta.remove();}catch(e2){}}cp.textContent=ok?'COPIED \u2713':'COPY FAILED';const hint=document.getElementById('hg_hint');if(hint)hint.textContent=ok?'Copied! Now tap OPEN MYGIGPAL to finish.':'Could not copy \u2014 tap and hold to select manually.';};}
 })();`;
   return 'javascript:' + encodeURIComponent(code.replace(/\s+/g, ' ').trim());
 }
