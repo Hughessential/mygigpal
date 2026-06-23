@@ -237,9 +237,17 @@ for(let i=0;i<list.length;i++){document.getElementById('hg_p').textContent='Read
 document.getElementById('hg_p').textContent='Sending '+list.length+' gigs to MyGigPal...';
 const payload=JSON.stringify({type:'mygigpal_scrape',ts:Date.now(),events:list});
 let opened=false;const encoded=encodeURIComponent(payload);
-if(encoded.length<6500){try{const w=window.open(TARGET+'/?h='+encoded,'_blank');if(w)opened=true;}catch(e){}}
-if(!opened){try{await navigator.clipboard.writeText(payload);overlay.innerHTML='<div style="max-width:340px;"><div style="font-size:20px;font-weight:900;letter-spacing:0.1em;margin-bottom:14px;color:#00d9ff;">MYGIGPAL · SCAN BRIDGE</div><div style="color:#fff;margin-bottom:18px;">'+list.length+' gigs copied to clipboard.<br><br>Now open MyGigPal and tap SCAN to paste them in.</div><button onclick="this.closest(\\'div\\').parentElement.remove();window.open(\\''+TARGET+'/?paste=1\\',\\'_blank\\');" style="background:#00d9ff;color:#000;border:0;padding:14px 22px;font:700 13px monospace;letter-spacing:0.1em;cursor:pointer;">OPEN MYGIGPAL &rarr;</button></div>';return;}catch(e){overlay.innerHTML='<div style="max-width:340px;color:#fff;"><div style="font-size:20px;font-weight:900;letter-spacing:0.1em;margin-bottom:14px;color:#00d9ff;">SCAN BRIDGE ERROR</div>Could not open MyGigPal or copy to clipboard. Please allow popups for this site and try again.</div>';return;}}
-setTimeout(()=>overlay.remove(),1500);
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Mac/.test(navigator.userAgent));
+if(!isIOS&&encoded.length<6000){try{const w=window.open(TARGET+'/?h='+encoded,'_blank');if(w)opened=true;}catch(e){}}
+if(opened){setTimeout(()=>overlay.remove(),1500);return;}
+const fits=encoded.length<12000;
+let inner='<div style="max-width:340px;"><div style="font-size:20px;font-weight:900;letter-spacing:0.1em;margin-bottom:14px;color:#00d9ff;">MYGIGPAL &middot; SCAN BRIDGE</div><div style="color:#fff;margin-bottom:16px;">'+list.length+' gigs ready.</div>';
+if(fits){inner+='<a href="'+TARGET+'/?h='+encoded+'" style="display:block;background:#00d9ff;color:#000;text-decoration:none;padding:16px;font:900 14px sans-serif;letter-spacing:0.06em;border-radius:10px;margin-bottom:10px;">OPEN MYGIGPAL &rarr;</a><button id="hg_copy" style="width:100%;background:transparent;color:#00d9ff;border:1px solid #00d9ff;padding:14px;font:700 13px sans-serif;letter-spacing:0.06em;border-radius:10px;cursor:pointer;">OR COPY GIGS</button><div id="hg_hint" style="color:#8d8b84;font-size:12px;margin-top:12px;">Tap OPEN MYGIGPAL &mdash; your gigs load automatically.</div>';}
+else{inner+='<button id="hg_copy" style="width:100%;background:#00d9ff;color:#000;border:0;padding:16px;font:900 14px sans-serif;letter-spacing:0.06em;border-radius:10px;cursor:pointer;margin-bottom:10px;">COPY GIGS</button><a href="'+TARGET+'/?paste=1" style="display:block;background:transparent;color:#00d9ff;text-decoration:none;border:1px solid #00d9ff;padding:14px;font:700 13px sans-serif;letter-spacing:0.06em;border-radius:10px;">OPEN MYGIGPAL &rarr;</a><div id="hg_hint" style="color:#8d8b84;font-size:12px;margin-top:12px;">Tap COPY GIGS, then OPEN MYGIGPAL and tap SCAN to paste.</div>';}
+inner+='</div>';
+overlay.innerHTML=inner;
+const cp=document.getElementById('hg_copy');
+if(cp){cp.onclick=async()=>{let ok=false;try{await navigator.clipboard.writeText(payload);ok=true;}catch(e){}if(!ok){try{const ta=document.createElement('textarea');ta.value=payload;ta.style.cssText='position:fixed;opacity:0;top:0;left:0;';document.body.appendChild(ta);ta.focus();ta.select();ok=document.execCommand('copy');ta.remove();}catch(e2){}}cp.textContent=ok?'COPIED \u2713':'COPY FAILED';const hint=document.getElementById('hg_hint');if(hint)hint.textContent=ok?'Copied! Now tap OPEN MYGIGPAL, then SCAN to paste.':'Could not copy \u2014 tap and hold to select manually.';};}
 })();`;
   return 'javascript:' + encodeURIComponent(code.replace(/\s+/g, ' ').trim());
 }
