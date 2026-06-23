@@ -588,12 +588,63 @@ function toast(msg, type = 'ok') {
   toast._t = setTimeout(() => { t.hidden = true; }, 3500);
 }
 
+// ── Scan Bridge install (desktop drag / mobile copy) ─────────────────────────
+// NOTE: this does NOT touch the scrape engine. It only changes how the user
+// *installs* the bridge. The bookmarklet code from generateBookmarklet() — the
+// proven scrape/fetch/handoff logic — is passed through byte-for-byte unchanged.
+function setupScanBridgeInstall() {
+  const code = generateBookmarklet();
+
+  // Desktop: the draggable bookmarklet link
+  const link = document.getElementById('bookmarklet');
+  if (link) link.href = code;
+
+  // Mobile detection — show the copy-and-install flow instead of drag-to-bar
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent))
+    || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  if (isMobile) document.body.classList.add('is-mobile');
+
+  // Mobile: copy the bridge code to the clipboard on tap (reliable on iOS in a gesture)
+  const copyBtn = document.getElementById('copy-bridge');
+  if (copyBtn) {
+    const reset = () => { copyBtn.classList.remove('copied'); copyBtn.textContent = '📋 Copy Scan Gigs code'; };
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(code);
+        copyBtn.classList.add('copied');
+        copyBtn.textContent = '✓ Copied — now do step 2';
+        toast('Scan Gigs code copied.', 'ok');
+        setTimeout(reset, 3500);
+      } catch (e) {
+        showCodeFallback(code);   // older browsers / blocked clipboard
+      }
+    });
+  }
+}
+
+function showCodeFallback(code) {
+  const m = document.createElement('div');
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;';
+  m.innerHTML = `
+    <div style="max-width:340px;text-align:center;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;color:#00d9ff;margin-bottom:12px;">COPY THE BRIDGE CODE</div>
+      <div style="color:#b8b6ae;font-size:14px;margin-bottom:14px;">Tap and hold in the box, choose Select All, then Copy.</div>
+      <textarea readonly style="width:100%;height:120px;background:#0a0a0a;color:#00d9ff;border:1px solid #333;padding:12px;font-family:monospace;font-size:11px;resize:none;"></textarea>
+      <button id="code-fallback-close" style="margin-top:14px;width:100%;background:#00d9ff;border:0;color:#000;padding:14px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;letter-spacing:0.12em;text-transform:uppercase;">DONE</button>
+    </div>`;
+  document.body.appendChild(m);
+  const ta = m.querySelector('textarea');
+  ta.value = code; ta.focus(); ta.select();
+  document.getElementById('code-fallback-close').onclick = () => m.remove();
+}
+
 // ── Init ─────────────────────────────────────────────────────────────────────
 function init() {
   state.memory = loadMemory();
 
-  // Wire bookmarklet
-  document.getElementById('bookmarklet').href = generateBookmarklet();
+  // Wire the bridge: desktop drag-to-bookmarks + mobile copy-and-install flow
+  setupScanBridgeInstall();
 
   // Onboarding navigation
   document.getElementById('btn-next').addEventListener('click', () => {

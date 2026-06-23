@@ -908,3 +908,38 @@ strong { font-weight: 700; color: var(--ink); }
   .mgp-intro__dot { animation: none; }
   .mgp-install__btn, .mgp-install__btn:hover { transform: none; }
 }
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   Scan Bridge install — adaptive desktop (drag) vs mobile (copy + steps)
+   ════════════════════════════════════════════════════════════════════════ */
+.mobile-only { display: none; }
+.desktop-only { display: block; }
+body.is-mobile .mobile-only { display: block; }
+body.is-mobile .desktop-only { display: none; }
+
+.copy-bridge-btn {
+  font-family: 'Inter', sans-serif; font-weight: 800; font-size: 16px; letter-spacing: 0.01em;
+  color: #000; background: var(--accent); border: 0; border-radius: 12px;
+  padding: 16px 24px; width: 100%; cursor: pointer;
+  box-shadow: 0 6px 22px -8px rgba(0, 217, 255, 0.6);
+  transition: filter 0.2s ease, transform 0.12s ease, background 0.2s ease, color 0.2s ease;
+}
+.copy-bridge-btn:hover { filter: brightness(1.06); }
+.copy-bridge-btn:active { transform: scale(0.985); }
+.copy-bridge-btn.copied { background: var(--surface-2); color: var(--accent); box-shadow: none; }
+
+.install-steps {
+  list-style: none; margin: 22px 0 0; padding: 0;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.install-steps li {
+  display: flex; gap: 14px; align-items: flex-start;
+  font-family: 'Inter Tight', sans-serif; font-size: 15px; line-height: 1.45; color: var(--ink-mid);
+}
+.install-steps .step-n {
+  flex: 0 0 26px; height: 26px; border-radius: 999px; display: grid; place-items: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+  color: var(--accent); border: 1px solid var(--accent-dim); background: rgba(0, 217, 255, 0.06);
+}
+.install-steps strong { color: var(--ink); font-weight: 700; }

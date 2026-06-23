@@ -1,6 +1,6 @@
 // MyGigPal service worker
 // A product of Hughessential™ Digital Studio.
-const CACHE = 'mygigpal-v5';
+const CACHE = 'mygigpal-v6';
 const ASSETS = [
   './',
   './index.html',

@@ -24,7 +24,7 @@
   /* Full intro on first visit / first launch after a version bump; quick fade otherwise.
      Bump MGP_VERSION in lockstep with the sw.js cache to replay the full intro for everyone. */
   (function () {
-    var h = document.documentElement, V = "v5";
+    var h = document.documentElement, V = "v6";
     window.MGP_VERSION = V;
     if (window.MGP_DEMO) { h.classList.add("mgp-intro-pending"); return; }
     try {
@@ -85,12 +85,26 @@
         <div class="onboard-eyebrow reveal" data-reveal="0">002 — ONE-TIME SETUP</div>
         <h1 class="onboard-title reveal" data-reveal="1">Install the<br><span class="accent">Scan Bridge.</span></h1>
         <p class="onboard-body reveal" data-reveal="2">
-          Drag <strong>Scan Gigs</strong> to your bookmarks bar (desktop) or save it as a bookmark (mobile). It's the secure bridge that lets MyGigPal read the planner without ever seeing your password.
+          The secure bridge that lets MyGigPal read the planner — without ever seeing your password. A one-time setup.
         </p>
-        <div class="bookmarklet-wrap reveal" data-reveal="3">
+
+        <!-- Desktop: drag to the bookmarks bar -->
+        <div class="bookmarklet-wrap reveal desktop-only" data-reveal="3">
           <a class="bookmarklet" id="bookmarklet" href="#">🔴 Scan Gigs</a>
+          <div class="onboard-meta">Drag this up to your bookmarks bar. Then open the planner's Events – Upcoming page and click it.</div>
         </div>
-        <div class="onboard-meta reveal" data-reveal="4">On iOS or Android, long-press the button to copy it, then save it as a bookmark.</div>
+
+        <!-- Mobile: copy the code, then save it as a bookmark -->
+        <div class="bookmarklet-mobile reveal mobile-only" data-reveal="3">
+          <button class="copy-bridge-btn" id="copy-bridge" type="button">📋 Copy Scan Gigs code</button>
+          <ol class="install-steps">
+            <li><span class="step-n">1</span><span>Tap <strong>Copy Scan Gigs code</strong> above.</span></li>
+            <li><span class="step-n">2</span><span>Tap Safari's <strong>Share</strong> button (the square with an up-arrow), then <strong>Add Bookmark</strong> → <strong>Save</strong>.</span></li>
+            <li><span class="step-n">3</span><span>Tap the <strong>Bookmarks</strong> icon (open book) → <strong>Edit</strong> → tap the bookmark you just saved.</span></li>
+            <li><span class="step-n">4</span><span>Clear its web address, <strong>paste</strong> the copied code, rename it <strong>Scan Gigs</strong>, then tap <strong>Done</strong>.</span></li>
+            <li><span class="step-n">5</span><span>To scan anytime: open the planner's <strong>Events – Upcoming</strong> page, tap the address bar, type <strong>Scan Gigs</strong>, and tap it.</span></li>
+          </ol>
+        </div>
       </div>
 
       <!-- Step 2: How to use it -->
